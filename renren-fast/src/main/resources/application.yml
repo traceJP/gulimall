@@ -37,6 +37,16 @@ spring:
         min-idle: 5       # 连接池中的最小空闲连接
   mvc:
     throw-exception-if-no-handler-found: true
+  application:
+    name: renren-fast
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        # networkInterface: localhost:8080
+#    inetutils:
+#      preferred-networks: localhost:8080
+
 #  resources:
 #    add-mappings: false
 

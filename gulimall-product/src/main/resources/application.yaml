@@ -2,6 +2,14 @@ server:
   port: 10000
 
 spring:
+  application:
+    name: gulimall-product
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        # networkInterface: localhost:10000
+
   datasource:
     username: root
     password: 123456
@@ -13,5 +21,11 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
+      # 全局逻辑删除规则
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  # 打印 SQL 日志
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 

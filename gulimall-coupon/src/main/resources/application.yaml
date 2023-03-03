@@ -2,6 +2,13 @@ server:
   port: 7000
 
 spring:
+  # nacos 配置： 1 服务器地址 2 服务名
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  application:
+    name: gulimall-coupon
   datasource:
     username: root
     password: 123456
