@@ -1,10 +1,9 @@
 package com.tracejp.gulimall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -38,6 +37,51 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     }
 
+/*
+    // findCatelogPath 递归写法 1
+    @Override
+    public Long[] findCatelogPath(Long catelogId) {
+        List<Long> paths = new LinkedList<>();
+        List<Long> parentPath = this.findParentPath(catelogId, paths);
+        Collections.reverse(parentPath);    // 逆序 parentPath
+        return parentPath.toArray(new Long[parentPath.size()]);
+    }
+
+    // 递归查 catelogId 路径上的所有节点 catelogId 值
+    private List<Long> findParentPath(Long catelogId, List<Long> paths) {
+        paths.add(catelogId);
+        // SELECT * FROM pms_category WHERE cat_id = catelogId
+        Long parentCid = this.getById(catelogId).getParentCid();
+
+        // 继续找
+        if (parentCid != 0) {
+            findParentPath(parentCid, paths);
+        }
+
+        // == 0
+        return paths;
+    }
+*/
+
+    // findCatelogPath 递归写法 2
+    @Override
+    public Long[] findCatelogPath(Long catelogId) {
+        List<Long> paths = new LinkedList<>();
+        // 传递引用 不需要返回值
+        this.findParentPath(catelogId, paths);
+        Collections.reverse(paths);
+
+        return paths.toArray(new Long[paths.size()]);
+    }
+    // 递归查 catelogId 路径上的所有节点 catelogId 值
+    private void findParentPath(Long catelogId, List<Long> paths) {
+        paths.add(catelogId);
+        // SELECT * FROM pms_category WHERE cat_id = catelogId
+        Long parentCid = this.getById(catelogId).getParentCid();
+        if (parentCid != 0) {
+            findParentPath(parentCid, paths);
+        }
+    }
 
     @Override
     public List<CategoryEntity> listWithTree() {

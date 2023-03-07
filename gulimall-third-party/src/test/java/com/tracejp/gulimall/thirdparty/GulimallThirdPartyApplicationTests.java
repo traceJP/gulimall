@@ -1,12 +1,11 @@
-package com.tracejp.gulimall.gateway;
-
+package com.tracejp.gulimall.thirdparty;
 
 
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GulimallGatewayApplicationTests {
+class GulimallThirdPartyApplicationTests {
 
     @Test
     void contextLoads() {

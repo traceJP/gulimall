@@ -1,0 +1,17 @@
+server:
+  port: 30000
+
+spring:
+  application:
+    name: gulimall-third-party
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    # 阿里云 oss 配置
+    alicloud:
+      access-key: 123456
+      secret-key: 123456
+      oss:
+        endpoint: 123456
+        bucket-name: 123456
