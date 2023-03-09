@@ -33,21 +33,20 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     @Override
     public PageUtils queryPage(Map<String, Object> params, Long catelogId) {
 
-        // 业务要求：默认没有选择三级分类（前端传入 catelogId = 0），则是查询所有
-        if (catelogId == 0) {
-            return this.queryPage(params);
-        }
+        // SELECT * FROM pms_att_group WHERE catelog_id = ? AND (att_group_id = key OR attr_group_name like %?%)
+        LambdaQueryWrapper<AttrGroupEntity> wrapper = new LambdaQueryWrapper<>();
 
         // 拿到查询检索条件
         String queryKey = (String) params.get("key");
-
-        // SELECT * FROM pms_att_group WHERE catelog_id = ? AND (att_group_id = key OR attr_group_name like %?%)
-        LambdaQueryWrapper<AttrGroupEntity> wrapper = new LambdaQueryWrapper<AttrGroupEntity>()
-                .eq(AttrGroupEntity::getCatelogId, catelogId);
         if (!StringUtils.isEmpty(queryKey)) {
             wrapper.and(obj -> obj.eq(AttrGroupEntity::getAttrGroupId, queryKey)
                     .or()
                     .like(AttrGroupEntity::getAttrGroupName, queryKey));
+        }
+
+        // 业务要求：默认没有选择三级分类（前端传入 catelogId = 0），则是查询所有
+        if (catelogId != 0) {
+            wrapper.eq(AttrGroupEntity::getCatelogId, catelogId);
         }
 
         IPage<AttrGroupEntity> page = this.page(new Query<AttrGroupEntity>().getPage(params), wrapper);

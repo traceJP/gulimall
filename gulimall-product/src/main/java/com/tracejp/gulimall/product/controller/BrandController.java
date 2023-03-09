@@ -68,12 +68,12 @@ public class BrandController {
     }
 
     /**
-     * 修改
+     * 修改 - 同步更新
      */
     @RequestMapping("/update")
     // @RequiresPermissions("product:brand:update")
     public R update(@RequestBody BrandEntity brand){
-		brandService.updateById(brand);
+		brandService.updateDetail(brand);
 
         return R.ok();
     }

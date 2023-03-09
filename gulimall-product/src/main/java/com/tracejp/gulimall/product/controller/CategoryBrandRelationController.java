@@ -1,14 +1,13 @@
 package com.tracejp.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tracejp.gulimall.product.entity.CategoryBrandRelationEntity;
 import com.tracejp.gulimall.product.service.CategoryBrandRelationService;
@@ -29,6 +28,21 @@ import com.tracejp.common.utils.R;
 public class CategoryBrandRelationController {
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+    /**
+     * 通过brandId 查询 返回关联关系
+     * product/categorybrandrelation/catelog/list
+     */
+    @GetMapping("/catelog/list")
+    public R catelogList(@RequestParam("brandId") Long brandId) {
+
+        List<CategoryBrandRelationEntity> data = categoryBrandRelationService.list(
+                new LambdaQueryWrapper<CategoryBrandRelationEntity>()
+                        .eq(CategoryBrandRelationEntity::getBrandId, brandId)
+        );
+
+    	return R.ok().put("data", data);
+    }
 
     /**
      * 列表
@@ -59,7 +73,9 @@ public class CategoryBrandRelationController {
     @RequestMapping("/save")
     // @RequiresPermissions("product:categorybrandrelation:save")
     public R save(@RequestBody CategoryBrandRelationEntity categoryBrandRelation){
-		categoryBrandRelationService.save(categoryBrandRelation);
+
+        // pms_category_brand_relation 表具有冗余字段，所以需要在保存的时候，将品牌名和分类名保存到表中
+        categoryBrandRelationService.saveDetail(categoryBrandRelation);
 
         return R.ok();
     }
