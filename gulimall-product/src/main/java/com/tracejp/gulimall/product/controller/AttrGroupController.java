@@ -9,6 +9,7 @@ import com.tracejp.gulimall.product.service.AttrAttrgroupRelationService;
 import com.tracejp.gulimall.product.service.AttrService;
 import com.tracejp.gulimall.product.service.CategoryService;
 import com.tracejp.gulimall.product.vo.AttrGroupRelationVo;
+import com.tracejp.gulimall.product.vo.AttrGroupWithAttrsVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +42,18 @@ public class AttrGroupController {
 
     @Autowired
     private AttrAttrgroupRelationService relationService;
+
+
+    /**
+     * product/attrgroup/225/withattr?t=1678590555702
+     */
+    @GetMapping("/{catelogId}/withattr")
+    public R getAttrGroupWithAttrs(@PathVariable("catelogId") Long catelogId) {
+        List<AttrGroupWithAttrsVo> vos = attrGroupService.getAttrGroupWithAttrByCatelogId(catelogId);
+        return R.ok().put("data", vos);
+    }
+
+
 
 
     /**

@@ -3,9 +3,12 @@ package com.tracejp.gulimall.product.controller;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.tracejp.gulimall.product.vo.BrandVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +31,27 @@ import com.tracejp.common.utils.R;
 public class CategoryBrandRelationController {
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+
+    /**
+     * 通过 categoryId 查询 brandId 和 brandName
+     * 直接查询 pms_category_brand_relation 关联表即可 有冗余字段
+     * /product/categorybrandrelation/brands/list?t=1678585500424&catId=225
+     */
+    @GetMapping("/brands/list")
+    public R relationBrandsList(@RequestParam(value = "catId") Long catId) {
+        LambdaQueryWrapper<CategoryBrandRelationEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CategoryBrandRelationEntity::getCatelogId, catId);
+        List<BrandVo> data = categoryBrandRelationService.list(wrapper).stream()
+                .map(item -> {
+                    BrandVo brandVo = new BrandVo();
+                    BeanUtils.copyProperties(item, brandVo);
+                    return brandVo;
+                })
+                .collect(Collectors.toList());
+        return R.ok().put("data", data);
+    }
+
 
     /**
      * 通过brandId 查询 返回关联关系

@@ -21,6 +21,13 @@ spring:
             - Path=/api/product/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
+        # gulimall-member 项目的路由
+        - id: member_route
+          uri: lb://gulimall-member
+          predicates:
+            - Path=/api/member/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
         # gulimall-third-party 项目的路由
         - id: third_party_route
           uri: lb://gulimall-third-party
