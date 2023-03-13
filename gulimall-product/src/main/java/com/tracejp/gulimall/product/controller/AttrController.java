@@ -1,8 +1,12 @@
 package com.tracejp.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.tracejp.gulimall.product.entity.AttrEntity;
+import com.tracejp.gulimall.product.entity.ProductAttrValueEntity;
+import com.tracejp.gulimall.product.service.ProductAttrValueService;
 import com.tracejp.gulimall.product.vo.AttrResponseVo;
 import com.tracejp.gulimall.product.vo.AttrVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +28,22 @@ import com.tracejp.common.utils.R;
 @RestController
 @RequestMapping("product/attr")
 public class AttrController {
+
     @Autowired
     private AttrService attrService;
+
+    @Autowired
+    private ProductAttrValueService productAttrValueService;
+
+
+    /**
+     * 规格
+     */
+    @GetMapping("/base/listforspu/{spuId}")
+    public R baseListForSpu(@PathVariable("spuId") Long spuId){
+        List<ProductAttrValueEntity> data = productAttrValueService.baseListForSpu(spuId);
+        return R.ok().put("data", data);
+    }
 
     /**
      * /product/attr/sale/list/{catelogId}
@@ -83,6 +101,16 @@ public class AttrController {
     // @RequiresPermissions("product:attr:update")
     public R update(@RequestBody AttrVo attr){
 		attrService.updateAttr(attr);
+
+        return R.ok();
+    }
+
+    /**
+     * 规格修改
+     */
+    @PostMapping("/update/{spuId}")
+    public R update(@PathVariable("spuId") Long spuId, @RequestBody List<ProductAttrValueEntity> entities){
+        productAttrValueService.updateSpuAttr(spuId, entities);
 
         return R.ok();
     }

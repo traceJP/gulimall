@@ -6,9 +6,7 @@ import com.tracejp.common.constant.ProductConstant;
 import com.tracejp.gulimall.product.dao.AttrAttrgroupRelationDao;
 import com.tracejp.gulimall.product.dao.AttrGroupDao;
 import com.tracejp.gulimall.product.dao.CategoryDao;
-import com.tracejp.gulimall.product.entity.AttrAttrgroupRelationEntity;
-import com.tracejp.gulimall.product.entity.AttrGroupEntity;
-import com.tracejp.gulimall.product.entity.CategoryEntity;
+import com.tracejp.gulimall.product.entity.*;
 import com.tracejp.gulimall.product.service.CategoryService;
 import com.tracejp.gulimall.product.vo.AttrGroupRelationVo;
 import com.tracejp.gulimall.product.vo.AttrResponseVo;
@@ -27,7 +25,6 @@ import com.tracejp.common.utils.PageUtils;
 import com.tracejp.common.utils.Query;
 
 import com.tracejp.gulimall.product.dao.AttrDao;
-import com.tracejp.gulimall.product.entity.AttrEntity;
 import com.tracejp.gulimall.product.service.AttrService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;

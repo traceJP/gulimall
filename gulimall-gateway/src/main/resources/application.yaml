@@ -28,6 +28,27 @@ spring:
             - Path=/api/member/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
+        # gulimall-ware 项目的路由
+        - id: ware_route
+          uri: lb://gulimall-ware
+          predicates:
+            - Path=/api/ware/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        # gulimall-coupon 项目的路由
+        - id: coupon_route
+          uri: lb://gulimall-coupon
+          predicates:
+            - Path=/api/coupon/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        # gulimall-order 项目的路由
+        - id: order_route
+          uri: lb://gulimall-order
+          predicates:
+            - Path=/api/order/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
         # gulimall-third-party 项目的路由
         - id: third_party_route
           uri: lb://gulimall-third-party

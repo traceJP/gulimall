@@ -6,8 +6,8 @@ spring:
     nacos:
       discovery:
         server-addr: localhost:8848
-    application:
-      name: gulimall-ware
+  application:
+    name: gulimall-ware
   datasource:
     username: root
     password: 123456
@@ -19,3 +19,6 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
+  # 打印 SQL 日志
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
