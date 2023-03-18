@@ -18,9 +18,28 @@ import java.util.Map;
  *
  * @author Mark sunlightcs@gmail.com
  */
-public class R extends HashMap<String, Object> {
+public class R<T> extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
-	
+
+	/**
+	 * 泛型响应模型 在Feign调用的时候可以被自动转换JSON数据
+	 */
+	private T data;
+
+	public T getData() {
+		return data;
+	}
+
+	public void setData(T data) {
+		this.data = data;
+	}
+
+	public R(T data) {
+		put("code", 0);
+		put("msg", "success");
+		this.data = data;
+	}
+
 	public R() {
 		put("code", 0);
 		put("msg", "success");

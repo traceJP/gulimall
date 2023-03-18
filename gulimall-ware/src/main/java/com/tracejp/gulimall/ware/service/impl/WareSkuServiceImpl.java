@@ -2,6 +2,7 @@ package com.tracejp.gulimall.ware.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.tracejp.common.to.SkuHasStockTo;
 import com.tracejp.common.utils.R;
 import com.tracejp.gulimall.ware.entity.WareInfoEntity;
 import com.tracejp.gulimall.ware.feign.ProductFeignService;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -22,6 +25,7 @@ import com.tracejp.gulimall.ware.service.WareSkuService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 @Service("wareSkuService")
@@ -75,4 +79,21 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
     }
 
+    @Override
+    public List<SkuHasStockTo> getSkusHasStock(@RequestBody List<Long> skuIds) {
+
+        // TODO 此处循环查库 优化
+        // SELECT * FROM wms_ware_sku WHERE sku_id in ({skuIds}) GROUP BY sku_id
+        // 判断 stock - stock_locked 封装 to 返回
+
+        return skuIds.stream().map(sku -> {
+            SkuHasStockTo skuHasStockTo = new SkuHasStockTo();
+            // 查询当前sku的总库存量
+            Long skuStock = this.baseMapper.getSkuStock(sku);
+            skuHasStockTo.setSkuId(sku);
+            skuHasStockTo.setHasStock(skuStock != null && skuStock > 0);
+
+            return skuHasStockTo;
+        }).collect(Collectors.toList());
+    }
 }

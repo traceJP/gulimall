@@ -5,11 +5,7 @@ import java.util.Map;
 
 import com.tracejp.gulimall.product.vo.SpuSaveVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tracejp.gulimall.product.entity.SpuInfoEntity;
 import com.tracejp.gulimall.product.service.SpuInfoService;
@@ -30,6 +26,21 @@ import com.tracejp.common.utils.R;
 public class SpuInfoController {
     @Autowired
     private SpuInfoService spuInfoService;
+
+
+
+    /**
+     * 商品上架
+     * /product/spuinfo/17/up
+     */
+    @PostMapping("{spuId}/up")
+    public R spuUp(@PathVariable("spuId") Long spuId) {
+        spuInfoService.spuUp(spuId);
+
+        return R.ok();
+    }
+
+
 
     /**
      * 列表

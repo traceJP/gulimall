@@ -1,14 +1,12 @@
 package com.tracejp.gulimall.ware.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.tracejp.common.to.SkuHasStockTo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tracejp.gulimall.ware.entity.WareSkuEntity;
 import com.tracejp.gulimall.ware.service.WareSkuService;
@@ -29,6 +27,16 @@ import com.tracejp.common.utils.R;
 public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
+
+    /**
+     * 查询 sku 是否有库存
+     */
+    @PostMapping("/hasStock")
+    public R<List<SkuHasStockTo>> getSkusHasStock(@RequestBody List<Long> skuIds) {
+        List<SkuHasStockTo> skuIdList = wareSkuService.getSkusHasStock(skuIds);
+        return new R<>(skuIdList);
+    }
+
 
     /**
      * 列表
