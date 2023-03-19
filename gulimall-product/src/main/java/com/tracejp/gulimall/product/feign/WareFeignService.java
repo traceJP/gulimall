@@ -1,6 +1,5 @@
 package com.tracejp.gulimall.product.feign;
 
-import com.tracejp.common.to.SkuHasStockTo;
 import com.tracejp.common.utils.R;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +17,6 @@ import java.util.List;
 public interface WareFeignService {
 
     @PostMapping("/ware/waresku/hasStock")
-    R<List<SkuHasStockTo>> getSkusHasStock(@RequestBody List<Long> skuIds);
+    R getSkusHasStock(@RequestBody List<Long> skuIds);
 
 }

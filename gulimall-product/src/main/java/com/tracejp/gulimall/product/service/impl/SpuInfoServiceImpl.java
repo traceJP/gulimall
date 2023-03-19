@@ -1,5 +1,6 @@
 package com.tracejp.gulimall.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -261,8 +262,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         // 如何在循环中根据 id 查找到 skuHasStockTos 中的数据 ？ 将 skuHasStockTos 转换为 map，以 id 作为 key 即可 ！
         Map<Long, Boolean> skuHasStockMap = null;
         try {
-            R<List<SkuHasStockTo>> skusHasStocks = wareFeignService.getSkusHasStock(skuIds);
-            List<SkuHasStockTo> skuHasStockTos = skusHasStocks.getData();
+            R skusHasStocks = wareFeignService.getSkusHasStock(skuIds);
+            // 这里 序列化有问题 - 已解决 采用 JSON 转换 ：Object -> Json -> List<Object>
+            List<SkuHasStockTo> skuHasStockTos = JSON.parseArray(JSON.toJSONString(skusHasStocks.get("data")), SkuHasStockTo.class);
             if (skuHasStockTos != null) {
                 skuHasStockMap = skuHasStockTos.stream()
                         .collect(Collectors.toMap(SkuHasStockTo::getSkuId, SkuHasStockTo::getHasStock));
