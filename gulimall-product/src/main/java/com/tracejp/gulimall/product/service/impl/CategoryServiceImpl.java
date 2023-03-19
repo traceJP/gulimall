@@ -3,6 +3,7 @@ package com.tracejp.gulimall.product.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.tracejp.gulimall.product.dao.CategoryBrandRelationDao;
 import com.tracejp.gulimall.product.entity.CategoryBrandRelationEntity;
+import com.tracejp.gulimall.product.vo.Catelog2Vo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import com.tracejp.gulimall.product.dao.CategoryDao;
 import com.tracejp.gulimall.product.entity.CategoryEntity;
 import com.tracejp.gulimall.product.service.CategoryService;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 
@@ -137,5 +139,58 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 .sorted(Comparator.comparingInt(menu -> (menu.getSort() == null ? 0 : menu.getSort())))
                 .collect(Collectors.toList());
     }
+
+
+    @Override
+    public List<CategoryEntity> getLevel1Categorys() {
+        LambdaQueryWrapper<CategoryEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CategoryEntity::getParentCid, 0);
+        return this.list(wrapper);
+    }
+
+    @Override
+    public Map<String, List<Catelog2Vo>> getCatelogJson() {
+
+        List<CategoryEntity> categoryEntities = this.list();
+
+        // 找出 1级 分类
+        List<CategoryEntity> level1Categorys = this.getLevel1Categorys();
+        return level1Categorys.stream()
+                .collect(Collectors.toMap(k -> k.getCatId().toString(), l1 -> {
+                    // 查找 2级 分类
+                    List<CategoryEntity> catelog1 = this.getParentEntity(categoryEntities, l1.getCatId());
+                    List<Catelog2Vo> catelog2Vos = null;
+                    if (!CollectionUtils.isEmpty(catelog1)) {
+                        catelog2Vos = catelog1.stream().map(l2 -> {
+                            // 查找 3级 分类
+                            List<CategoryEntity> catelog3 = this.getParentEntity(categoryEntities, l2.getCatId());
+                            List<Catelog2Vo.Catelog3Vo> catelog3Vos = null;
+                            if (!CollectionUtils.isEmpty(catelog3)) {
+                                catelog3Vos = catelog3.stream().map(l3 ->
+                                        new Catelog2Vo.Catelog3Vo(
+                                                l2.getCatId().toString(),
+                                                l3.getCatId().toString(),
+                                                l3.getName()
+                                        )
+                                ).collect(Collectors.toList());
+                            }
+                            return new Catelog2Vo(
+                                    l1.getCatId().toString(),
+                                    catelog3Vos,
+                                    l2.getCatId().toString(),
+                                    l2.getName()
+                            );
+                        }).collect(Collectors.toList());
+                    }
+                    return catelog2Vos;
+                }));
+    }
+
+    private List<CategoryEntity> getParentEntity(List<CategoryEntity> categoryEntities, Long parentCid) {
+        return categoryEntities.stream()
+                .filter(categoryEntity -> categoryEntity.getParentCid().equals(parentCid))
+                .collect(Collectors.toList());
+    }
+
 
 }
