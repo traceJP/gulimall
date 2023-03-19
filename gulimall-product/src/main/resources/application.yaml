@@ -18,6 +18,10 @@ spring:
   # jackson统一时间响应格式
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
+  # thymeleaf模板引擎
+  thymeleaf:
+    cache: false
+
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
