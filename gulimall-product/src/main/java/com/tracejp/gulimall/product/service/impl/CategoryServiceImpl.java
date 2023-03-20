@@ -7,7 +7,12 @@ import com.tracejp.gulimall.product.dao.CategoryBrandRelationDao;
 import com.tracejp.gulimall.product.entity.CategoryBrandRelationEntity;
 import com.tracejp.gulimall.product.vo.Catelog2Vo;
 import org.apache.commons.lang3.RandomUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +44,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
 
     @Override
@@ -95,6 +103,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return paths.toArray(new Long[paths.size()]);
     }
 
+    // * Caching 可以组合操作 Spring-Cache 注解
+/*    @Caching(evict = {
+            @CacheEvict(value = "category", key = "'getLevel1Categorys'"),
+            @CacheEvict(value = "category", key = "'getCatelogJson'")
+    })*/
+    // 或者指定 allEntries 直接删除 当前 cacheName 的所有缓存分区
+    @CacheEvict(value = "category", allEntries = true)
     @Transactional
     @Override
     public void updateDetail(CategoryEntity category) {
@@ -151,6 +166,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
 
+    /*
+        Spring-Cache 总结
+        常规数据（读多写少，即时性，一致性要求不高的数据）﹔完全可以使用spring-Cache
+        特殊数据:特殊设计
+     */
+
+
+    @Cacheable(value = "category", key = "#root.methodName")
     @Override
     public List<CategoryEntity> getLevel1Categorys() {
         LambdaQueryWrapper<CategoryEntity> wrapper = new LambdaQueryWrapper<>();
@@ -158,7 +181,55 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return this.list(wrapper);
     }
 
+    // @CachePut 对应 双写模式
+    // sync 可以给缓存加锁 防止缓存击穿
+    @Cacheable(value = "category", key = "#root.methodName", sync = true)
     @Override
+    public Map<String, List<Catelog2Vo>> getCatelogJson() {
+
+        List<CategoryEntity> categoryEntities = this.list();
+
+        // 找出 1级 分类
+        List<CategoryEntity> level1Categorys = this.getLevel1Categorys();
+        return level1Categorys.stream()
+                .collect(Collectors.toMap(k -> k.getCatId().toString(), l1 -> {
+                    // 查找 2级 分类
+                    List<CategoryEntity> catelog1 = this.getParentEntity(categoryEntities, l1.getCatId());
+                    List<Catelog2Vo> catelog2Vos = null;
+                    if (!CollectionUtils.isEmpty(catelog1)) {
+                        catelog2Vos = catelog1.stream().map(l2 -> {
+                            // 查找 3级 分类
+                            List<CategoryEntity> catelog3 = this.getParentEntity(categoryEntities, l2.getCatId());
+                            List<Catelog2Vo.Catelog3Vo> catelog3Vos = null;
+                            if (!CollectionUtils.isEmpty(catelog3)) {
+                                catelog3Vos = catelog3.stream().map(l3 ->
+                                        new Catelog2Vo.Catelog3Vo(
+                                                l2.getCatId().toString(),
+                                                l3.getCatId().toString(),
+                                                l3.getName()
+                                        )
+                                ).collect(Collectors.toList());
+                            }
+                            return new Catelog2Vo(
+                                    l1.getCatId().toString(),
+                                    catelog3Vos,
+                                    l2.getCatId().toString(),
+                                    l2.getName()
+                            );
+                        }).collect(Collectors.toList());
+                    }
+                    return catelog2Vos;
+                }));
+    }
+
+
+    /**
+     * 使用 redis 缓存解决方案
+     * 缓存数据一致性：（缺点：会读脏数据）
+     * 1）双写模式：修改了数据库的值时 同时修改缓存中的值
+     * 2）失效模式：修改了数据库的值时 直接把缓存中的值删掉
+     */
+  /*  @Override
     public Map<String, List<Catelog2Vo>> getCatelogJson() {
         // 先从缓存中查找
         String catelogJson = redisTemplate.opsForValue().get("catelogJson");
@@ -214,7 +285,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
         return collect;
     }
-
+*/
 
     private List<CategoryEntity> getParentEntity(List<CategoryEntity> categoryEntities, Long parentCid) {
         return categoryEntities.stream()

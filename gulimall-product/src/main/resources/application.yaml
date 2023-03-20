@@ -26,6 +26,20 @@ spring:
     host: localhost
     password: 123456
     port: 6379
+  # spring-cache整合redis
+  cache:
+    type: redis
+    redis:
+      # 全局缓存默认过期时间（毫秒）
+      time-to-live: 3600000
+      # 是否关闭key前缀指定
+      # （如果关闭了默认前缀，则spring-cache不设置key分区，即所有缓存都在一个分区）此时所有的 key-prefix 和 cache-names 都将失效！！！
+      use-key-prefix: true
+      # 缓存 key 的默认前缀 （如果指定了前缀，就用默认前缀，否则将使用缓存的名字"cacheNames"作为前缀）推荐使用自定义cacheNames
+      # ** 自定义cacheNames业务规定：使用某个业务，就用某个业务名作为前缀，删除时直接指定allEntries=true即可删除该业务的所有缓存
+      # key-prefix: CACHE_
+      # 是否默认缓存空值（默认为true） 防止缓存穿透问题
+      cache-null-values: true
 
 
 mybatis-plus:
