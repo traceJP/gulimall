@@ -1,4 +1,4 @@
-package com.tracejp.gulimall.search.controller;
+package com.tracejp.gulimall.search.app;
 
 import com.tracejp.common.exception.BizCodeEnum;
 import com.tracejp.common.to.es.SkuEsModel;

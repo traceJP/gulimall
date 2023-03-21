@@ -9,6 +9,9 @@ spring:
     nacos:
       discovery:
         server-addr: localhost:8848
+  # thymeleaf模板引擎
+  thymeleaf:
+    cache: false
 
 elasticsearch:
   host: localhost

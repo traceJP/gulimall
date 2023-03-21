@@ -6,6 +6,8 @@ import com.tracejp.gulimall.product.entity.AttrGroupEntity;
 import com.tracejp.gulimall.product.entity.CategoryBrandRelationEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -60,6 +62,11 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
 
         // TODO 更新其他关联表
 
+    }
+
+    @Override
+    public List<BrandEntity> getBrandsByIds(List<Long> brandIds) {
+        return (List<BrandEntity>) this.listByIds(brandIds);
     }
 
 }
