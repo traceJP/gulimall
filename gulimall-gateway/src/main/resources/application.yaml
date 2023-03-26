@@ -1,5 +1,6 @@
 server:
-  port: 88
+  # TODO 为方便本地调试 此处 88 端口 修改为 80 端口
+  port: 80
 
 spring:
   application:
@@ -67,4 +68,24 @@ spring:
             # /api/xxx -> /renren-fast/xxx
             - RewritePath=/api/(?<segment>.*), /renren-fast/$\{segment}
 
+        # 前端前台静态页面路由
+        - id: gulimall_host_route
+          uri: lb://gulimall-product
+          predicates:
+            - Host=gulimall.com,item.gulimall.com
+
+        - id: gulimall_search_route
+          uri: lb://gulimall-search
+          predicates:
+            - Host=search.gulimall.com
+
+        - id: gulimall_order_route
+          uri: lb://gulimall-order
+          predicates:
+            - Host=order.gulimall.com
+
+        - id: gulimall_member_route
+          uri: lb://gulimall-member
+          predicates:
+            - Host=member.gulimall.com
 

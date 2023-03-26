@@ -28,7 +28,7 @@ public class IndexController {
     @GetMapping({"/", "/index.html"})
     public String indexPage(Model model) {
         List<CategoryEntity> categoryEntities = categoryService.getLevel1Categorys();
-        model.addAttribute("categorys", categoryEntities);
+        model.addAttribute("categories", categoryEntities);
         return "index";
     }
 

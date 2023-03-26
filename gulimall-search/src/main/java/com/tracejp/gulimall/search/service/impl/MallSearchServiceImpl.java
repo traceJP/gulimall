@@ -229,7 +229,7 @@ public class MallSearchServiceImpl implements MallSearchService {
                 }
                 param.set_queryString(param.get_queryString().replace("&attrs=" + encode, ""));
                 // 本机部署环境URL
-                navVo.setLink("http://localhost:12000/list.html?" + param.get_queryString());
+                navVo.setLink("http://search.gulimall.com/list.html?" + param.get_queryString());
 
                 return navVo;
             }).collect(Collectors.toList());
@@ -274,7 +274,7 @@ public class MallSearchServiceImpl implements MallSearchService {
 
                 return esModel;
             }).collect(Collectors.toList());
-            result.setProducts(esModels);
+            result.setProduct(esModels);
         }
 
 

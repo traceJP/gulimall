@@ -17,7 +17,7 @@
     <div class="header_head_box">
         <b class="header_head_p">
             <div style="overflow: hidden">
-                <a href="http://localhost:10000" class="header_head_p_a1" style="width:73px;">
+                <a href="http://gulimall.com" class="header_head_p_a1" style="width:73px;">
                     谷粒商城首页
                 </a>
                 <a href="#" class="header_head_p_a">
@@ -400,7 +400,7 @@
 <!--搜索导航-->
 <div class="header_sous">
     <div class="logo">
-        <a href="http://localhost:10000"><img src="./image/logo1.jpg" alt=""></a>
+        <a href="http://gulimall.com"><img src="./image/logo1.jpg" alt=""></a>
     </div>
     <div class="header_form">
         <input id="keyword_input" type="text" placeholder="手机" th:value="${param.keyword}"/>
@@ -1208,7 +1208,7 @@
                     </div>
                     <!--排序内容，每四个是一组-->
                     <div class="rig_tab">
-                        <div th:each="product : ${result.getProducts()}">
+                        <div th:each="product : ${result.getProduct()}">
                             <div class="ico">
                                 <i class="iconfont icon-weiguanzhu"></i>
                                 <a href="#">关注</a>
@@ -2027,8 +2027,7 @@
 
 
     function searchByKeyword() {
-        this.searchProducts("keyword", $("#keyword_input").val());
-        return false;
+        searchProducts("keyword", $("#keyword_input").val());
     }
 
     $(".page_a").click(function () {

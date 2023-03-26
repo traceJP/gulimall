@@ -18,7 +18,7 @@ public class SearchResult {
     /**
      * 所有商品信息
      */
-    private List<SkuEsModel> products;
+    private List<SkuEsModel> product;
 
     /**
      * 当前页码
@@ -91,7 +91,7 @@ public class SearchResult {
 
         private String catalogName;
 
-        private String catalogValue;
+        // private String catalogValue;
 
     }
 
