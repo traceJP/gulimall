@@ -14,4 +14,31 @@
     </resultMap>
 
 
+    <resultMap id="spuItemAttrGroupVo" type="com.tracejp.gulimall.product.vo.SpuItemAttrGroupVo">
+        <result property="groupName" column="attr_group_name"/>
+        <collection property="attrs" ofType="com.tracejp.gulimall.product.vo.Attr">
+            <result property="attrName" column="attr_name"/>
+            <result property="attrValue" column="attr_value"/>
+        </collection>
+    </resultMap>
+
+    <!-- 四表联查 -->
+    <!--
+         attr_group（通过组id查到对应的属性组）
+         attr与attr_attrgroup_relation（关联查出属性组对应的属性）
+         pms_product_attr_value（当前商品的属性）
+    -->
+    <select id="getAttrGroupWithAttrsBySpuId" resultMap="spuItemAttrGroupVo">
+        SELECT
+            ag.attr_group_name AS attr_group_name,
+            a.attr_name AS attr_name,
+            pav.attr_value AS attr_value
+        FROM `pms_attr_group` AS ag
+        LEFT JOIN `pms_attr_attrgroup_relation` AS arr ON ag.attr_group_id = arr.attr_group_id
+        LEFT JOIN `pms_attr` AS a ON arr.attr_id = a.attr_id
+        LEFT JOIN `pms_product_attr_value` AS pav ON a.attr_id = pav.attr_id
+        WHERE ag.catelog_id = #{catalogId} AND pav.spu_id = #{spuId}
+    </select>
+
+
 </mapper>

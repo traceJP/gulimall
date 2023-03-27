@@ -3,6 +3,7 @@ package com.tracejp.gulimall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tracejp.common.utils.PageUtils;
 import com.tracejp.gulimall.product.entity.SkuInfoEntity;
+import com.tracejp.gulimall.product.vo.SkuItemVo;
 
 import java.util.List;
 import java.util.Map;
@@ -29,5 +30,10 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
     PageUtils queryPageByCondition(Map<String, Object> params);
 
     List<SkuInfoEntity> getSkusBySpuId(Long spuId);
+
+    /**
+     * 封装 item 页面数据
+     */
+    SkuItemVo item(Long skuId);
 }
 

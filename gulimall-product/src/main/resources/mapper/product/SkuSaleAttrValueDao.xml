@@ -14,4 +14,50 @@
     </resultMap>
 
 
+    <resultMap id="SkuItemSaleAttrVo" type="com.tracejp.gulimall.product.vo.SkuItemSaleAttrVo">
+        <result property="attrId" column="attr_id"/>
+        <result property="attrName" column="attr_name"/>
+        <collection property="attrValues" ofType="com.tracejp.gulimall.product.vo.AttrValueWithSkuIdVo">
+            <result property="attrValue" column="attr_value"/>
+            <result property="skuIds" column="sku_ids"/>
+        </collection>
+    </resultMap>
+
+    <!--
+        根据spuId查询出所有的销售属性
+        1.根据spuId查询出所有的skuId（通过商品信息id，查到对应的商品的所有库存单位信息skuId）
+        2.根据skuId查询出所有的销售属性（skuId所包含的所有销售属性，以及其对应的值）
+
+        业务改造：商品详情页需要知道商品的销售属性所对应的其他sku_id，用于sku组合切换
+            通过 attr_value 找到对应的 sku_id
+    -->
+    <select id="getSaleAttrsBySpuId" resultMap="SkuItemSaleAttrVo">
+<!-- # Mybatis 必须要使用html注释 否则无效
+        # GROUP_CONCAT 用于将多个值合并为一个值，以逗号分隔，可以用于解决查询字段不包括分组字段的问题
+        # 并且 Mybatis
+        SELECT
+               attr_id AS attr_id,
+               attr_name AS attr_name,
+               GROUP_CONCAT(DISTINCT `attr_value`) AS attr_values
+        FROM `pms_sku_info` AS info
+        LEFT JOIN `pms_sku_sale_attr_value` AS ssav ON info.sku_id = ssav.sku_id
+        WHERE info.spu_id = #{spuId}
+        # 按 id 和 [name] 同时 分组
+        # 因为 mysql 规定 查询字段中必须包含分组字段
+        GROUP BY ssav.`attr_id`, ssav.`attr_name`
+-->
+
+        SELECT
+            ssav.`attr_id` AS attr_id,
+            ssav.`attr_name` AS attr_name,
+            ### 查单个的销售属性的值 以对应多个 sku_id
+            ssav.`attr_value` AS attr_value,
+            GROUP_CONCAT(DISTINCT info.`sku_id`) AS sku_ids
+        FROM `pms_sku_info` AS info
+        LEFT JOIN `pms_sku_sale_attr_value` AS ssav ON info.sku_id = ssav.sku_id
+        WHERE info.spu_id = #{spuId}
+        GROUP BY ssav.`attr_id`, ssav.`attr_name`, ssav.`attr_value`
+    </select>
+
+
 </mapper>
