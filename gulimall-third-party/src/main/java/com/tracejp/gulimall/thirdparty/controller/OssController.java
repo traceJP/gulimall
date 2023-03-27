@@ -5,7 +5,7 @@ import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.MatchMode;
 import com.aliyun.oss.model.PolicyConditions;
 import com.tracejp.common.utils.R;
-import com.tracejp.gulimall.thirdparty.config.OssConfig;
+import com.tracejp.gulimall.thirdparty.config.properties.OssConfigProperties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +35,7 @@ public class OssController {
     private OSS ossClient;
 
     @Autowired
-    private OssConfig ossConfig;
+    private OssConfigProperties ossConfigProperties;
 
 
     @GetMapping("/policy")
@@ -61,11 +61,11 @@ public class OssController {
 
             // build response
             respMap = new LinkedHashMap<>();
-            respMap.put("accessId", ossConfig.getAccessKey());    // AccessId = AccessKey
+            respMap.put("accessId", ossConfigProperties.getAccessKey());    // AccessId = AccessKey
             respMap.put("policy", encodedPolicy);
             respMap.put("signature", postSignature);
             respMap.put("dir", dir);
-            respMap.put("host", ossConfig.getHost());
+            respMap.put("host", ossConfigProperties.getHost());
             respMap.put("expire", String.valueOf(expireEndTime / 1000));
             // respMap.put("expire", formatISO8601Date(expiration));
 

@@ -1,4 +1,4 @@
-package com.tracejp.gulimall.thirdparty.config;
+package com.tracejp.gulimall.thirdparty.config.properties;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @Data
-public class OssConfig {
+public class OssConfigProperties {
 
     @Value("${spring.cloud.alicloud.access-key}")
     private String accessKey;

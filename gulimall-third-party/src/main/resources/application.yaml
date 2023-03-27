@@ -15,3 +15,8 @@ spring:
       oss:
         endpoint: 123456
         bucket-name: 123456
+      sms:
+        region: cn-hangzhou
+        endpoint: dysmsapi.aliyuncs.com
+        sign-name: 阿里云短信测试
+        template-code: SMS_154950909
