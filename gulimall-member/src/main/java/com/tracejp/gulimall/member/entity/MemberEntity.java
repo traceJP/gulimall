@@ -93,4 +93,22 @@ public class MemberEntity implements Serializable {
 	 */
 	private Date createTime;
 
+	// =============================== 微博登录 ==============================
+
+	/**
+	 * 社交用户唯一标识（无论用户访问多少次，该值都是用户的唯一标识）
+	 */
+	private String socialUid;
+
+	/**
+	 * 社交用户访问令牌（用于方便开发者判断的，用户的一个现时token） 实际上不需要存储此字段
+	 * 访问令牌代表用户在微博客户端 同意了一次 第三方应用的授权
+	 */
+	private String accessToken;
+
+	/**
+	 * 社交用户访问令牌过期时间 实际上不需要存储此字段
+	 */
+	private Long expiresIn;
+
 }

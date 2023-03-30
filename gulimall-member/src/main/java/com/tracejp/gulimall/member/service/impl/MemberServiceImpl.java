@@ -1,6 +1,10 @@
 package com.tracejp.gulimall.member.service.impl;
 
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.tracejp.common.to.SocialUser;
 import com.tracejp.common.to.UserLoginTo;
 import com.tracejp.common.to.UserRegistTo;
 import com.tracejp.gulimall.member.entity.MemberLevelEntity;
@@ -10,6 +14,8 @@ import com.tracejp.gulimall.member.service.MemberLevelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -102,6 +108,65 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
             }
         }
         return null;
+    }
+
+    @Override
+    public MemberEntity login(SocialUser socialUser) {
+
+        MemberEntity memberEntity = this.baseMapper.selectOne(
+                new LambdaQueryWrapper<MemberEntity>().eq(MemberEntity::getSocialUid, socialUser.getUid())
+        );
+
+        if (memberEntity == null) {  // 首次登录 注册
+
+            memberEntity = this.regist(socialUser);
+        } else {
+            // 替换token
+            MemberEntity update = new MemberEntity();
+            update.setId(memberEntity.getId());
+            update.setAccessToken(socialUser.getAccess_token());
+            update.setExpiresIn(socialUser.getExpires_in());
+            this.baseMapper.updateById(update);
+
+            memberEntity.setAccessToken(socialUser.getAccess_token());
+            memberEntity.setExpiresIn(socialUser.getExpires_in());
+        }
+
+        return memberEntity;
+    }
+
+    @Override
+    public MemberEntity regist(SocialUser socialUser) {
+        MemberEntity memberEntity = new MemberEntity();
+
+        // 设置默认等级
+        MemberLevelEntity levelEntity = memberLevelService.getByDefaultLevel();
+        memberEntity.setLevelId(levelEntity.getId());
+
+        memberEntity.setSocialUid(socialUser.getUid());
+        memberEntity.setAccessToken(socialUser.getAccess_token());
+        memberEntity.setExpiresIn(socialUser.getExpires_in());
+
+        try {
+            // 查询社交信息 需要同时使用accessToken 和 用户的唯一社交id 查询
+            Map<String, Object> queryMap = new HashMap<>();
+            queryMap.put("access_token", socialUser.getAccess_token());
+            queryMap.put("uid", socialUser.getUid());
+            String response = HttpUtil.get("https://api.weibo.com/2/users/show.json", queryMap);
+
+            // JSONObject extends HashMap 可以直接按key拿到value
+            JSONObject jsonObject = JSON.parseObject(response);
+            String name = jsonObject.getString("name");
+            int gender = "m".equals(jsonObject.getString("gender")) ? 1 : 0;
+
+            memberEntity.setNickname(name);
+            memberEntity.setGender(gender);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        this.baseMapper.insert(memberEntity);
+        return memberEntity;
     }
 
 }

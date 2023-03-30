@@ -1,5 +1,6 @@
 package com.tracejp.gulimall.auth.feign;
 
+import com.tracejp.common.to.SocialUser;
 import com.tracejp.common.to.UserLoginTo;
 import com.tracejp.common.to.UserRegistTo;
 import com.tracejp.common.utils.R;
@@ -21,5 +22,8 @@ public interface MemberFeignService {
 
     @PostMapping("/member/member/login")
     R login(@RequestBody UserLoginTo to);
+
+    @PostMapping("/member/member/oauth2/login")
+    R oauthLogin(@RequestBody SocialUser socialUser);
 
 }

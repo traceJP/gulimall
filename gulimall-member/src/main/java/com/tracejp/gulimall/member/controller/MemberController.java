@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.tracejp.common.exception.BizCodeEnum;
+import com.tracejp.common.to.SocialUser;
 import com.tracejp.common.to.UserLoginTo;
 import com.tracejp.common.to.UserRegistTo;
 import com.tracejp.gulimall.member.exception.PhoneExistException;
@@ -66,6 +67,13 @@ public class MemberController {
             return R.error(BizCodeEnum.LOGINACCT_PASSWORD_INVALID_EXCEPTION.getCode(),
                     BizCodeEnum.LOGINACCT_PASSWORD_INVALID_EXCEPTION.getMsg());
         }
+        return R.ok().put("data", memberEntity);
+    }
+
+    @PostMapping("/oauth2/login")
+    public R oauthLogin(@RequestBody SocialUser socialUser) {
+        MemberEntity memberEntity = memberService.login(socialUser);
+
         return R.ok().put("data", memberEntity);
     }
 
