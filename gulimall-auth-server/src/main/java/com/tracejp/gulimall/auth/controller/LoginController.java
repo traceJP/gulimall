@@ -1,9 +1,12 @@
 package com.tracejp.gulimall.auth.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.tracejp.common.constant.AuthServerConstant;
 import com.tracejp.common.to.UserLoginTo;
 import com.tracejp.common.to.UserRegistTo;
 import com.tracejp.common.utils.R;
 import com.tracejp.common.utils.RRException;
+import com.tracejp.common.vo.MemberResponseVo;
 import com.tracejp.gulimall.auth.service.LoginService;
 import com.tracejp.gulimall.auth.service.RegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +38,15 @@ public class LoginController {
     @Autowired
     private RegisterService registerService;
 
+
+    @GetMapping("/login.html")
+    public String loginPage(HttpSession session) {
+        if (session.getAttribute(AuthServerConstant.LOGIN_USER) != null) {
+            return "redirect:http://gulimall.com";
+        }
+
+        return "login";
+    }
 
     @ResponseBody
     @GetMapping("/sms/sendCode")
@@ -89,7 +102,7 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String login(UserLoginTo to, RedirectAttributes redirectAttributes) {
+    public String login(UserLoginTo to, RedirectAttributes redirectAttributes, HttpSession session) {
         R r = loginService.login(to);
         if (r.getCode() != 0) {
             Map<String, String> errors = new HashMap<>(1);
@@ -97,6 +110,10 @@ public class LoginController {
             redirectAttributes.addFlashAttribute("errors", errors);
             return "redirect:http://auth.gulimall.com/login.html";
         }
+
+        // 取出数据放如spring-session
+        MemberResponseVo data = JSON.parseObject(JSON.toJSONString(r.get("data")), MemberResponseVo.class);
+        session.setAttribute(AuthServerConstant.LOGIN_USER, data);
         return "redirect:http://gulimall.com";
     }
 

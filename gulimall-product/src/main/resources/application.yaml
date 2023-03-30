@@ -9,6 +9,9 @@ spring:
       discovery:
         server-addr: localhost:8848
         # networkInterface: localhost:10000
+  # spring-session 整合使用redis存储
+  session:
+    store-type: redis
 
   datasource:
     username: root

@@ -63,6 +63,9 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         memberEntity.setUsername(userRegistTo.getUserName());
         memberEntity.setMobile(userRegistTo.getPhone());
 
+        // 默认值
+        memberEntity.setNickname(userRegistTo.getUserName());
+
         // 密码加密  MD5加盐
         // BCryptPasswordEncoder md5盐加密：(spring的加密工具)
         // 传入密码，会计算出md5，然后生成一个随机盐，将其进行拼串返回。

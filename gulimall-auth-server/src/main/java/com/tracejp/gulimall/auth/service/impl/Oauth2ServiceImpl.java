@@ -7,7 +7,7 @@ import com.tracejp.common.utils.R;
 import com.tracejp.gulimall.auth.config.properties.Oauth2WeiboProperties;
 import com.tracejp.gulimall.auth.feign.MemberFeignService;
 import com.tracejp.gulimall.auth.service.Oauth2Service;
-import com.tracejp.gulimall.auth.vo.MemberResponseVo;
+import com.tracejp.common.vo.MemberResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;

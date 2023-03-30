@@ -82,6 +82,12 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
+        <!-- spring session 整合 -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+
 
         <!-- 热启动工具 -->
         <!-- 使用 ctor + shift + F9（构建快捷键） 可以热启动应用 -->

@@ -1,7 +1,8 @@
-package com.tracejp.gulimall.auth.vo;
+package com.tracejp.common.vo;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Date;
  * @since 2023/3/30 15:01
  */
 @Data
-public class MemberResponseVo {
+public class MemberResponseVo implements Serializable {
 
     /**
      * id

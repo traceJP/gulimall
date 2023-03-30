@@ -1,6 +1,6 @@
 package com.tracejp.gulimall.auth.service;
 
-import com.tracejp.gulimall.auth.vo.MemberResponseVo;
+import com.tracejp.common.vo.MemberResponseVo;
 
 /**
  * <p>  <p/>

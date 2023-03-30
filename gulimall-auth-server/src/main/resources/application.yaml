@@ -13,6 +13,9 @@ spring:
     port: 6379
   thymeleaf:
     cache: false
+  # spring-session 整合使用redis存储
+  session:
+    store-type: redis
 
 oauth2:
   weibo:
