@@ -84,7 +84,7 @@
             </ul>
         </div>
 
-        <!--/*-->        <div class="One_ShopCon">
+        <div class="One_ShopCon">
             <h1 th:if="${cart.items == null}">
                 购物车还没有商品，<a href="http://gulimall.com/">去购物</a>
             </h1>
@@ -101,7 +101,7 @@
                                     <p>
                                         <span th:text="${item.title}">TCL 55A950C 55英寸32核</span>
                                         <br/>
-                                        <span th:each="attr:${item.skuAttrValues}" th:text="${attr}">尺码: 55时 超薄曲面 人工智能</span>
+                                        <span th:each="attr:${item.skuAttr}" th:text="${attr}">尺码: 55时 超薄曲面 人工智能</span>
                                     </p>
                                 </dd>
                             </li>
@@ -126,7 +126,7 @@
                 </li>
 
             </ul >
-        </div><!--*/-->
+        </div>
         <div class="One_ShopFootBuy fix1">
             <div>
                 <ul>
@@ -146,8 +146,8 @@
             </div>
             <div>
                 <ol>
-                    <!--/*-->                     <li>总价:<span style="color:#e64346;font-weight:bold;font-size:16px;" class="fnt">￥[[${#numbers.formatDecimal(cart.totalAmount, 3, 2)}]]</span>
-                    <li>优惠：￥[[${#numbers.formatDecimal(cart.reduce,1,2)}]]</li><!--*/-->
+                    <li>总价:<span style="color:#e64346;font-weight:bold;font-size:16px;" class="fnt">￥[[${#numbers.formatDecimal(cart.totalAmount, 3, 2)}]]</span>
+                    <li>优惠：￥[[${#numbers.formatDecimal(cart.reduce,1,2)}]]</li>
                 </ol>
             </div>
             <div>
@@ -228,7 +228,7 @@
     }
 
     function login() {
-        var s = encodeURIComponent("http://cart.gmall.com:8087/cartList");
+        var s = encodeURIComponent("http://cart.gulimall.com:8087/cartList");
         window.location.href = "http://auth.gulimall.com/login.html";
     }
 

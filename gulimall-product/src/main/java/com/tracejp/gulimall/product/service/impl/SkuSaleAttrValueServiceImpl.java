@@ -1,10 +1,13 @@
 package com.tracejp.gulimall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.tracejp.gulimall.product.vo.SkuItemSaleAttrVo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -33,6 +36,16 @@ public class SkuSaleAttrValueServiceImpl extends ServiceImpl<SkuSaleAttrValueDao
     public List<SkuItemSaleAttrVo> getSaleAttrsBySpuId(Long spuId) {
 
         return this.baseMapper.getSaleAttrsBySpuId(spuId);
+    }
+
+    @Override
+    public List<String> getSkuSaleAttrValuesAsStringList(Long skuId) {
+        LambdaQueryWrapper<SkuSaleAttrValueEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SkuSaleAttrValueEntity::getSkuId, skuId);
+        List<SkuSaleAttrValueEntity> list = this.list(wrapper);
+        return list.stream()
+                .map(item -> item.getAttrName() + ":" + item.getAttrValue())
+                .collect(Collectors.toList());
     }
 
 }
