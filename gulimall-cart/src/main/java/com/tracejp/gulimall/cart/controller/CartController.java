@@ -9,7 +9,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 /**
  * <p>  <p/>
@@ -23,6 +26,14 @@ public class CartController {
 
     @Autowired
     private CartService cartService;
+
+
+    @ResponseBody
+    @GetMapping("/currentUserCartItems")
+    // 可以接收用户id，避免feign调用过程中忽略掉的请求头信息
+    public List<CartItem> getCurrentUserCartItems() {
+        return cartService.getCurrentUserCartItems();
+    }
 
     @GetMapping("/checkItem")
     public String checkItem(@RequestParam("skuId") Long skuId, @RequestParam("checked") Integer checked) {

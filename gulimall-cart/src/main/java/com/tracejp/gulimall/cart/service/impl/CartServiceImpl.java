@@ -159,6 +159,16 @@ public class CartServiceImpl implements CartService {
         cartRedisOps.delete(skuId.toString());
     }
 
+    @Override
+    public List<CartItem> getCurrentUserCartItems() {
+        UserInfoTo userInfo = CartInterceptor.threadLocal.get();
+        if (userInfo.getUserId() == null) {
+            return null;
+        }
+
+        return getCartItems(userInfo.getUserId().toString());
+    }
+
     /**
      * 获取购物车中所有的购物项 通过拼接前的id查询
      */
