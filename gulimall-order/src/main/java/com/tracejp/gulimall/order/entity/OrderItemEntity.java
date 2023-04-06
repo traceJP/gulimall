@@ -28,6 +28,7 @@ public class OrderItemEntity implements Serializable {
 	/**
 	 * order_id
 	 */
+	@Deprecated
 	private Long orderId;
 	/**
 	 * order_sn

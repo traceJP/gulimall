@@ -55,7 +55,8 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoDao, WareInfoEntity
         if (r.getCode() == 0) {
             MemberAddressVo memberReceiveAddress =
                     JSON.parseObject(JSON.toJSONString(r.get("memberReceiveAddress")), MemberAddressVo.class);
-            BigDecimal fare = new BigDecimal(RandomStringUtils.randomNumeric(2));
+            // TODO 计算运费 这里默认都返回10块钱运费
+            BigDecimal fare = new BigDecimal("10.00");
             fareVo.setFare(fare);
             fareVo.setAddress(memberReceiveAddress);
             return fareVo;

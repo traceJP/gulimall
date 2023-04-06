@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.tracejp.common.to.SkuHasStockTo;
 import com.tracejp.common.utils.PageUtils;
 import com.tracejp.gulimall.ware.entity.WareSkuEntity;
+import com.tracejp.gulimall.ware.vo.LockStockResult;
+import com.tracejp.gulimall.ware.vo.WareSkuLockVo;
 
 import java.util.List;
 import java.util.Map;
@@ -26,5 +28,7 @@ public interface WareSkuService extends IService<WareSkuEntity> {
     void addStock(Long skuId, Long wareId, Integer skuNum);
 
     List<SkuHasStockTo> getSkusHasStock(List<Long> skuIds);
+
+    void orderLockStock(WareSkuLockVo vo);
 }
 

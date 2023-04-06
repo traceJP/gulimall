@@ -4,7 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.tracejp.common.exception.BizCodeEnum;
 import com.tracejp.common.to.SkuHasStockTo;
+import com.tracejp.gulimall.ware.exception.NoStockException;
+import com.tracejp.gulimall.ware.vo.LockStockResult;
+import com.tracejp.gulimall.ware.vo.WareSkuLockVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +31,17 @@ import com.tracejp.common.utils.R;
 public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
+
+
+    @PostMapping("/lock/order")
+    public R orderLockStock(@RequestBody WareSkuLockVo vo) {
+        try {
+            wareSkuService.orderLockStock(vo);
+            return R.ok();
+        } catch (NoStockException e) {
+            return R.error(BizCodeEnum.NO_STOCK_EXCEPTION.getCode(), BizCodeEnum.NO_STOCK_EXCEPTION.getMsg());
+        }
+    }
 
     /**
      * 查询 sku 是否有库存
