@@ -23,6 +23,7 @@ import com.tracejp.gulimall.order.interceptor.LoginUserInterceptor;
 import com.tracejp.gulimall.order.service.OrderItemService;
 import com.tracejp.gulimall.order.service.OrderService;
 import com.tracejp.gulimall.order.vo.*;
+//import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -136,6 +137,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return orderConfirmVo;
     }
 
+    /**
+     * 使用 seata ：@GlobalTransactional 开启主事物，其他分布式服务方使用原本的 @Transactional 注解开启分布式事物即可
+     * seata使用需要代理数据源，使用包装器模式将数据源进行代理，这里使用了 seata-spring-boot-starter 帮忙自动代理了数据源
+     */
+//    @GlobalTransactional
     @Override
     public OrderSubmitResponseVo submitOrder(OrderSubmitVo orderSubmitVo, Long userId) {
         OrderSubmitResponseVo responseVo = new OrderSubmitResponseVo();
@@ -188,12 +194,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }
         R lockStock = wareFeignService.orderLockStock(wareSkuLockVo);
         if (lockStock.getCode() != 0) {
-            // 库存锁定失败
-            // TODO 分布式事物
+            responseVo.setCode(3);
+            return responseVo;
         }
 
-
-        return null;
+        responseVo.setCode(0);
+        return responseVo;
     }
 
     /**
