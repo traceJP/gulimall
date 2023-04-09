@@ -2,8 +2,10 @@ package com.tracejp.gulimall.ware.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tracejp.common.to.SkuHasStockTo;
+import com.tracejp.common.to.mq.OrderTo;
 import com.tracejp.common.to.mq.StockLockedTo;
 import com.tracejp.common.utils.PageUtils;
+import com.tracejp.gulimall.ware.entity.WareOrderTaskEntity;
 import com.tracejp.gulimall.ware.entity.WareSkuEntity;
 import com.tracejp.gulimall.ware.vo.LockStockResult;
 import com.tracejp.gulimall.ware.vo.WareSkuLockVo;
@@ -33,5 +35,10 @@ public interface WareSkuService extends IService<WareSkuEntity> {
     void orderLockStock(WareSkuLockVo vo);
 
     void unLockStock(StockLockedTo stockLockedTo);
+
+    void unLockStock(OrderTo orderTo);
+
+    WareOrderTaskEntity getWareOrderTaskEntityByOrderSn(String orderSn);
+
 }
 

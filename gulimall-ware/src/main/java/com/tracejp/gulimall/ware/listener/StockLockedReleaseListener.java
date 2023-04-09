@@ -1,6 +1,7 @@
 package com.tracejp.gulimall.ware.listener;
 
 import com.rabbitmq.client.Channel;
+import com.tracejp.common.to.mq.OrderTo;
 import com.tracejp.common.to.mq.StockLockedTo;
 import com.tracejp.gulimall.ware.service.WareSkuService;
 import org.springframework.amqp.core.Message;
@@ -54,5 +55,22 @@ public class StockLockedReleaseListener {
         }
 
     }
+
+    /**
+     * 处理订单关闭消息
+     * OrderTo = OrderVo
+     */
+    @RabbitHandler
+    public void handleOrderClose(OrderTo orderTo, Message message, Channel channel) throws IOException {
+        try {
+            wareSkuService.unLockStock(orderTo);
+            // 签收消息
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            // 拒签
+            channel.basicReject(message.getMessageProperties().getDeliveryTag(), true);
+        }
+    }
+
 
 }

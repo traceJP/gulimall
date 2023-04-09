@@ -25,7 +25,7 @@ import com.tracejp.gulimall.order.service.OrderItemService;
 import com.tracejp.gulimall.order.service.OrderService;
 import com.tracejp.gulimall.order.vo.*;
 //import io.seata.spring.annotation.GlobalTransactional;
-import org.springframework.beans.BeanUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -66,6 +66,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Autowired
     private ThreadPoolExecutor executor;
@@ -201,6 +204,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             return responseVo;
         }
 
+        // 发送订单创建消息
+        rabbitTemplate.convertAndSend("order-event-exchange", "order.create.order", order.getOrder());
+
         responseVo.setCode(0);
         return responseVo;
     }
@@ -210,6 +216,29 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         LambdaQueryWrapper<OrderEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(OrderEntity::getOrderSn, orderSn);
         return this.getOne(wrapper);
+    }
+
+    @Override
+    public void closeOrder(OrderEntity orderEntity) {
+
+        OrderEntity orderEntityLast = this.getById(orderEntity.getId());
+        // 关单条件：订单状态为待付款状态（新建状态）
+        if (OrderStatusEnum.CREATE_NEW.getCode().equals(orderEntity.getStatus())) {
+            // 关闭订单
+            OrderEntity orderEntityUpdate = new OrderEntity();
+            orderEntityUpdate.setId(orderEntityLast.getId());
+            orderEntityUpdate.setStatus(OrderStatusEnum.CANCLED.getCode());
+            this.updateById(orderEntityUpdate);
+
+            // TODO MQ连续的消息传递 必须保证消息一定能发出去，否则会造成消息丢失
+            // 解决方案：发送者消息确认机制
+            // - 使用消息发送者的确认机制，发送者发送消息后，将其在数据库中保存
+            // - 每个消息都在数据库保存一份，定期扫描数据库，将没有发送成功的消息再次发送出去
+            // 释放其他订单业务 - 库存解锁 & 优惠券返还
+            rabbitTemplate.convertAndSend("order-event-exchange",
+                    "order.release.other", orderEntityLast);
+        }
+
     }
 
     /**

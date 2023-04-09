@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.tracejp.common.to.SkuHasStockTo;
+import com.tracejp.common.to.mq.OrderTo;
 import com.tracejp.common.to.mq.StockDetailTo;
 import com.tracejp.common.to.mq.StockLockedTo;
 import com.tracejp.common.utils.R;
@@ -228,6 +229,28 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
         }
 
+    }
+
+    @Transactional
+    @Override
+    public void unLockStock(OrderTo orderTo) {
+        String orderSn = orderTo.getOrderSn();
+        WareOrderTaskEntity wareOrderTaskEntity = getWareOrderTaskEntityByOrderSn(orderSn);
+        Long wareOrderTaskId = wareOrderTaskEntity.getId();
+        // 找到所有工作单Detail项
+        List<WareOrderTaskDetailEntity> taskDetails = wareOrderTaskDetailService.getListByTaskId(wareOrderTaskId);
+        if (!CollectionUtils.isEmpty(taskDetails)) {
+            // 解锁库存：需要添加局部事物，防止解锁项和mq消息不一致
+            for (WareOrderTaskDetailEntity taskDetail : taskDetails) {
+                this.unLockStock(taskDetail.getSkuId(), taskDetail.getWareId(), taskDetail.getSkuNum(), taskDetail.getId());
+            }
+        }
+    }
+
+    public WareOrderTaskEntity getWareOrderTaskEntityByOrderSn(String orderSn) {
+        LambdaQueryWrapper<WareOrderTaskEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(WareOrderTaskEntity::getOrderSn, orderSn);
+        return wareOrderTaskService.getById(wrapper);
     }
 
     @Transactional
