@@ -36,3 +36,9 @@ mybatis-plus:
   # 打印 SQL 日志
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000

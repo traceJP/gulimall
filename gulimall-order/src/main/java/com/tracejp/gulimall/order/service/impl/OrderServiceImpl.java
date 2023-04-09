@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.tracejp.common.constant.OrderConstant;
 import com.tracejp.common.to.SkuHasStockTo;
+import com.tracejp.common.to.mq.OrderTo;
 import com.tracejp.common.utils.PageUtils;
 import com.tracejp.common.utils.Query;
 import com.tracejp.common.utils.R;
@@ -26,6 +27,7 @@ import com.tracejp.gulimall.order.service.OrderService;
 import com.tracejp.gulimall.order.vo.*;
 //import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -207,6 +209,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 发送订单创建消息
         rabbitTemplate.convertAndSend("order-event-exchange", "order.create.order", order.getOrder());
 
+        responseVo.setOrder(order.getOrder());
         responseVo.setCode(0);
         return responseVo;
     }
@@ -235,8 +238,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             // - 使用消息发送者的确认机制，发送者发送消息后，将其在数据库中保存
             // - 每个消息都在数据库保存一份，定期扫描数据库，将没有发送成功的消息再次发送出去
             // 释放其他订单业务 - 库存解锁 & 优惠券返还
+            OrderTo orderTo = new OrderTo();
+            BeanUtils.copyProperties(orderEntityLast, orderTo);
             rabbitTemplate.convertAndSend("order-event-exchange",
-                    "order.release.other", orderEntityLast);
+                    "order.release.other", orderTo);
         }
 
     }

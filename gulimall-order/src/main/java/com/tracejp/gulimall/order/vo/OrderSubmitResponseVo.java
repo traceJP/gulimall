@@ -12,6 +12,9 @@ import lombok.Data;
 @Data
 public class OrderSubmitResponseVo {
 
+    /**
+     * 订单信息：状态码为0时有值
+     */
     private OrderEntity order;
 
     /**
