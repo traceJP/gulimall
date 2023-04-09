@@ -24,6 +24,8 @@ spring:
     cache: false
   session:
     store-type: redis
+  mvc:
+    date-format: yyyy-MM-dd HH:mm:ss
   # rabbitmq配置
   rabbitmq:
     host: localhost
@@ -60,10 +62,24 @@ gulimall:
     max-size: 200
     keep-alive-time: 10
 
+# 阿里支付宝配置
+alipay:
+  app-id: 2021000117660001
+  merchant-private-key: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAo
+  alipay-public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+  # 异步通知接口，支付宝会异步通知商户服务器，商户服务器需要通过该接口返回处理结果
+  # ！！！注意：notify-url地址必须是公网可访问的地址，否则支付宝无法通知！！！
+  notify-url: http://order.gulimall.com/payed/notify
+  # 回调页地址：用户在支付宝页面支付完毕后，自动跳转回该地址
+  return-url: http://member.gulimall.com/memberOrder.html
+  sign-type: RSA2
+  charset: utf-8
+  gateway-url: https://openapi.alipaydev.com/gateway.do
+
+
 feign:
   client:
     config:
       default:
         connectTimeout: 5000
         readTimeout: 50000
-

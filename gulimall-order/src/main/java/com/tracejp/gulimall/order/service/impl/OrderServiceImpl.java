@@ -12,10 +12,12 @@ import com.tracejp.common.to.mq.OrderTo;
 import com.tracejp.common.utils.PageUtils;
 import com.tracejp.common.utils.Query;
 import com.tracejp.common.utils.R;
+import com.tracejp.common.vo.MemberResponseVo;
 import com.tracejp.gulimall.order.bo.OrderCreateBo;
 import com.tracejp.gulimall.order.dao.OrderDao;
 import com.tracejp.gulimall.order.entity.OrderEntity;
 import com.tracejp.gulimall.order.entity.OrderItemEntity;
+import com.tracejp.gulimall.order.entity.PaymentInfoEntity;
 import com.tracejp.gulimall.order.enume.OrderStatusEnum;
 import com.tracejp.gulimall.order.feign.CartFeignService;
 import com.tracejp.gulimall.order.feign.MemberFeignService;
@@ -24,8 +26,8 @@ import com.tracejp.gulimall.order.feign.WareFeignService;
 import com.tracejp.gulimall.order.interceptor.LoginUserInterceptor;
 import com.tracejp.gulimall.order.service.OrderItemService;
 import com.tracejp.gulimall.order.service.OrderService;
+import com.tracejp.gulimall.order.service.PaymentInfoService;
 import com.tracejp.gulimall.order.vo.*;
-//import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
@@ -52,6 +55,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     private OrderItemService orderItemService;
+
+    @Autowired
+    private PaymentInfoService paymentInfoService;
 
     @Autowired
     private MemberFeignService memberFeignService;
@@ -146,7 +152,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     /**
      * 使用 seata ：@GlobalTransactional 开启主事物，其他分布式服务方使用原本的 @Transactional 注解开启分布式事物即可
      * seata使用需要代理数据源，使用包装器模式将数据源进行代理，这里使用了 seata-spring-boot-starter 帮忙自动代理了数据源
-     *
+     * <p>
      * 这里使用 rabbitMQ 控制 订单和库存之间的事物 一致性 （柔性事物：可靠消息 + 最终一致性 方案）
      */
 //    @GlobalTransactional
@@ -246,12 +252,68 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     }
 
+    @Override
+    public PayVo getOrderPay(String orderSn) {
+        PayVo payVo = new PayVo();
+        OrderEntity orderEntity = this.getByOrderSn(orderSn);
+        payVo.setOut_trade_no(orderEntity.getOrderSn());
+        // 支付宝金额仅支持小数点后两位（分），这里向上取值
+        payVo.setTotal_amount(orderEntity.getPayAmount().setScale(2, BigDecimal.ROUND_UP).toString());
+        payVo.setSubject("谷粒商城订单测试");
+        payVo.setBody("谷粒商城订单测试");
+        return payVo;
+    }
+
+    @Override
+    public PageUtils queryPageWithItem(Map<String, Object> params) {
+        MemberResponseVo memberResponseVo = LoginUserInterceptor.loginUser.get();
+
+        LambdaQueryWrapper<OrderEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(OrderEntity::getMemberId, memberResponseVo.getId())
+                .orderByDesc(OrderEntity::getCreateTime);
+        IPage<OrderEntity> page = this.page(new Query<OrderEntity>().getPage(params), wrapper);
+
+        List<OrderEntity> orderEntities = page.getRecords();
+        if (!CollectionUtils.isEmpty(orderEntities)) {
+            for (OrderEntity orderEntity : orderEntities) {
+                LambdaQueryWrapper<OrderItemEntity> orderItemWrapper = new LambdaQueryWrapper<>();
+                orderItemWrapper.eq(OrderItemEntity::getOrderSn, orderEntity.getOrderSn());
+                List<OrderItemEntity> list = orderItemService.list(orderItemWrapper);
+                orderEntity.setOrderItemEntityList(list);
+            }
+        }
+
+        return new PageUtils(page);
+    }
+
+    @Transactional
+    @Override
+    public String handlePayResult(PayAsyncVo payAsyncVo) {
+
+        // 保存交易流水
+        PaymentInfoEntity paymentInfoEntity = new PaymentInfoEntity();
+        paymentInfoEntity.setAlipayTradeNo(payAsyncVo.getTrade_no());
+        paymentInfoEntity.setOrderSn(payAsyncVo.getOut_trade_no());
+        paymentInfoEntity.setPaymentStatus(payAsyncVo.getTrade_status());
+        paymentInfoEntity.setCallbackTime(payAsyncVo.getNotify_time());
+        paymentInfoService.save(paymentInfoEntity);
+
+        // 修改订单状态
+        if (payAsyncVo.getTrade_status().equals("TRADE_SUCCESS") ||
+                payAsyncVo.getTrade_status().equals("TRADE_FINISHED")) {
+            String outTradeNo = payAsyncVo.getOut_trade_no();
+            this.baseMapper.updateOrderStatus(outTradeNo, OrderStatusEnum.PAYED.getCode());
+        }
+
+        return "success";
+    }
+
     /**
      * 使用 bo和其他方法 分离业务 方便观察事物
      * 抽取方法：创建订单-》
-     *              构建订单记录
-     *              创建订单项 -》
-     *                  构建订单项
+     * 构建订单记录
+     * 创建订单项 -》
+     * 构建订单项
      */
     private OrderCreateBo createOrder(OrderSubmitVo orderSubmitVo, Long userId) {
 

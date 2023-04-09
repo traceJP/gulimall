@@ -30,6 +30,9 @@ public class LoginUserInterceptor implements HandlerInterceptor {
             return true;
         }
 
+//        // TODO PostMan测试放行
+//        if (true) return true;
+
         Object attribute = request.getSession().getAttribute(AuthServerConstant.LOGIN_USER);
         if (attribute == null) {
             // 没登录就去登录
