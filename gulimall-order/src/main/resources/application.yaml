@@ -29,6 +29,8 @@ spring:
     host: localhost
     port: 5672
     virtual-host: /
+    username: guest
+    password: guest
     # ***************************************************************************************
     # 开启发送端消息确认机制（消息可靠性）
     # confirms：客户端消息是否发抵达了交换机确认。

@@ -1,6 +1,7 @@
 package com.tracejp.gulimall.order.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -140,6 +141,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     /**
      * 使用 seata ：@GlobalTransactional 开启主事物，其他分布式服务方使用原本的 @Transactional 注解开启分布式事物即可
      * seata使用需要代理数据源，使用包装器模式将数据源进行代理，这里使用了 seata-spring-boot-starter 帮忙自动代理了数据源
+     *
+     * 这里使用 rabbitMQ 控制 订单和库存之间的事物 一致性 （柔性事物：可靠消息 + 最终一致性 方案）
      */
 //    @GlobalTransactional
     @Override
@@ -200,6 +203,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         responseVo.setCode(0);
         return responseVo;
+    }
+
+    @Override
+    public OrderEntity getByOrderSn(String orderSn) {
+        LambdaQueryWrapper<OrderEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(OrderEntity::getOrderSn, orderSn);
+        return this.getOne(wrapper);
     }
 
     /**

@@ -35,6 +35,10 @@ public class OrderItemVo {
     private BigDecimal weight;
 
     public BigDecimal getTotalPrice() {
+        // TODO BUG 其他业务不使用 totalPrice属性时 会因为 Feign 调用时 total 或 count 字段为 null 导致空指针异常
+        if (this.price == null || this.count == null) {
+            return new BigDecimal("0");
+        }
         return this.price.multiply(new BigDecimal(count.toString()));
     }
 

@@ -41,4 +41,16 @@ public class WareOrderTaskDetailEntity implements Serializable {
 	 */
 	private Long taskId;
 
+	/**
+	 * 业务要求：
+	 * 库存工作单：当库存锁定时（下单后），将创建一个订单对应库存的锁定任务，即 WareOrderTaskEntity
+	 * 每个订单对应多个商品sku库存，即 WareOrderTaskDetailEntity
+	 * 新增字段：wareId，lockStatus 用于代表当前sku商品对应的仓库id，可以定位到对应的仓库表WareSkuEntity记录，操作其锁定解锁
+	 * lockStatus：1锁定 2解锁 3已扣减   用于分布式事物判断
+	 */
+
+	private Long wareId;
+
+	private Integer lockStatus;
+
 }
