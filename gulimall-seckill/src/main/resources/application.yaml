@@ -1,0 +1,20 @@
+server:
+  port: 25000
+spring:
+  application:
+    name: gulimall-seckill
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  redis:
+    host: localhost
+    port: 6379
+  # spring @Async 异步任务线程池配置
+  # 用于解决 @Scheduled 定时任务阻塞问题，@Scheduled必须要等待当前任务执行完才会开始定时的下一个任务
+  # 解决方案：加入 spring异步任务，方案二：使用 CompletableFuture 包装任务
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 50
