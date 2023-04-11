@@ -1,5 +1,6 @@
 package com.tracejp.gulimall.product.vo;
 
+import com.tracejp.common.to.SeckillSkuRedisTo;
 import com.tracejp.gulimall.product.entity.SkuImagesEntity;
 import com.tracejp.gulimall.product.entity.SkuInfoEntity;
 import com.tracejp.gulimall.product.entity.SpuInfoDescEntity;
@@ -34,6 +35,6 @@ public class SkuItemVo {
     private List<SpuItemAttrGroupVo> groupAttrs;
 
     //6、秒杀商品的优惠信息
-    private SeckillSkuVo seckillSkuVo;
+    private SeckillSkuRedisTo seckillSkuVo;
 
 }

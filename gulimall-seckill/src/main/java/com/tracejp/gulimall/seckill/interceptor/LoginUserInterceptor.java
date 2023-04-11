@@ -1,4 +1,4 @@
-package com.tracejp.gulimall.member.interceptor;
+package com.tracejp.gulimall.seckill.interceptor;
 
 import com.tracejp.common.constant.AuthServerConstant;
 import com.tracejp.common.vo.MemberResponseVo;
@@ -23,24 +23,23 @@ public class LoginUserInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        // 放行白名单
+        // 只验证 /kill 接口
         String requestURI = request.getRequestURI();
-        boolean match = new AntPathMatcher().match("/member/**", requestURI);
+        boolean match = new AntPathMatcher().match("/kill", requestURI);
         if (match) {
+            Object attribute = request.getSession().getAttribute(AuthServerConstant.LOGIN_USER);
+            if (attribute == null) {
+                // 没登录就去登录
+                request.getSession().setAttribute("msg", "请先进行登录");
+                response.sendRedirect("http://auth.gulimall.com/login.html");
+                return false;
+            }
+
+            MemberResponseVo memberResponseVo = (MemberResponseVo) attribute;
+            loginUser.set(memberResponseVo);
             return true;
         }
 
-        // 这里session 为null？ 已解决，是因为没有配置 GulimallSessionConfig 导致无法获取到正确的session key
-        Object attribute = request.getSession().getAttribute(AuthServerConstant.LOGIN_USER);
-        if (attribute == null) {
-            // 没登录就去登录
-            request.getSession().setAttribute("msg", "请先进行登录");
-            response.sendRedirect("http://auth.gulimall.com/login.html");
-            return false;
-        }
-
-        MemberResponseVo memberResponseVo = (MemberResponseVo) attribute;
-        loginUser.set(memberResponseVo);
         return true;
     }
 

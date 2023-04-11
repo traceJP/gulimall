@@ -1,12 +1,18 @@
 package com.tracejp.gulimall.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.tracejp.common.to.SeckillSkuRedisTo;
+import com.tracejp.common.utils.R;
 import com.tracejp.gulimall.product.entity.SkuImagesEntity;
 import com.tracejp.gulimall.product.entity.SpuInfoDescEntity;
+import com.tracejp.gulimall.product.feign.SeckillFeignService;
 import com.tracejp.gulimall.product.service.*;
+import com.tracejp.gulimall.product.vo.SeckillSkuVo;
 import com.tracejp.gulimall.product.vo.SkuItemSaleAttrVo;
 import com.tracejp.gulimall.product.vo.SkuItemVo;
 import com.tracejp.gulimall.product.vo.SpuItemAttrGroupVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +48,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     @Autowired
     private SkuSaleAttrValueService skuSaleAttrValueService;
 
+    @Autowired
+    private SeckillFeignService seckillFeignService;
 
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
@@ -119,35 +127,47 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             return info;
         }, threadPoolExecutor);
 
+        // 2. sku 图片信息获取 pms_sku_images
         CompletableFuture<Void> imagesFuture = CompletableFuture.runAsync(() -> {
-            // 2. sku 图片信息获取 pms_sku_images
             List<SkuImagesEntity> images = skuImagesService.getImagesBySkuId(skuId);
             skuItemVo.setImages(images);
         }, threadPoolExecutor);
 
+        // 3. 获取 spu 的销售属性组合
         CompletableFuture<Void> saleAttrFuture = infoFuture.thenAcceptAsync(res -> {
-            // 3. 获取 spu 的销售属性组合
             List<SkuItemSaleAttrVo> saleAttrVos = skuSaleAttrValueService.getSaleAttrsBySpuId(res.getSpuId());
             skuItemVo.setSaleAttr(saleAttrVos);
         }, threadPoolExecutor);
 
+        // 4. 获取 spu 的介绍
         CompletableFuture<Void> descFuture = infoFuture.thenAcceptAsync(res -> {
-            // 4. 获取 spu 的介绍
             SpuInfoDescEntity spuInfoDescEntity = spuInfoDescService.getById(res.getSpuId());
             skuItemVo.setDesc(spuInfoDescEntity);
         }, threadPoolExecutor);
 
+        // 5. 获取 spu 的规格参数信息
         CompletableFuture<Void> baseAttrFuture = infoFuture.thenAcceptAsync(res -> {
-            // 5. 获取 spu 的规格参数信息
             List<SpuItemAttrGroupVo> attrGroupVos =
                     attrGroupService.getAttrGroupWithAttrsBySpuId(res.getSpuId(), res.getCatalogId());
             skuItemVo.setGroupAttrs(attrGroupVos);
         });
 
+        // <业务修改> 6. 查询当前商品是否参与秒杀
+        CompletableFuture<Void> seckillFuture = CompletableFuture.runAsync(() -> {
+            R skuSeckillInfo = seckillFeignService.getSkuSeckillInfo(skuId);
+            if (skuSeckillInfo.getCode() == 0) {
+                SeckillSkuRedisTo seckill =
+                        JSON.parseObject(JSON.toJSONString(skuSeckillInfo.get("data")), SeckillSkuRedisTo.class);
+                skuItemVo.setSeckillSkuVo(seckill);
+            }
+        }, threadPoolExecutor);
+
+
         // 等待所有任务完成
         // 异步编排
         // * allOf() 方法返回一个 CompletableFuture<Void> 对象，它在所有的 CompletableFuture 完成后完成。
-        CompletableFuture.allOf(infoFuture, imagesFuture, saleAttrFuture, descFuture, baseAttrFuture).join();
+        CompletableFuture.allOf(infoFuture, imagesFuture, saleAttrFuture, descFuture, baseAttrFuture, seckillFuture)
+                .join();
         return skuItemVo;
     }
 

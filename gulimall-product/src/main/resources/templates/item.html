@@ -1399,7 +1399,8 @@
     $(".seckill").click(function () {
         var isLogin = [[${session.loginUser != null}]];     //true
         if (isLogin) {
-            var killId = $(this).attr("sessionid") + "-" + $(this).attr("skuid");
+            // 约定：下划线！
+            var killId = $(this).attr("sessionid") + "_" + $(this).attr("skuid");
             var code = $(this).attr("code");
             var num = $("#productNum").val();
             location.href = "http://seckill.gulimall.com/kill?killId=" + killId + "&key=" + code + "&num=" + num;

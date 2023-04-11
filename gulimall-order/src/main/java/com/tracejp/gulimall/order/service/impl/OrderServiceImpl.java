@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.tracejp.common.constant.OrderConstant;
 import com.tracejp.common.to.SkuHasStockTo;
 import com.tracejp.common.to.mq.OrderTo;
+import com.tracejp.common.to.mq.SeckillOrderTo;
 import com.tracejp.common.utils.PageUtils;
 import com.tracejp.common.utils.Query;
 import com.tracejp.common.utils.R;
@@ -306,6 +307,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }
 
         return "success";
+    }
+
+    @Transactional
+    @Override
+    public void createSeckillOrder(SeckillOrderTo seckillOrderTo) {
+
+        // TODO 保存订单、保存订单项
+
+
     }
 
     /**

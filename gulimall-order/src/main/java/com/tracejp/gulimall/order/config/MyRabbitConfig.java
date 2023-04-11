@@ -143,6 +143,20 @@ public class MyRabbitConfig {
                 null);
     }
 
+    // 参考 seckill服务 rabbitConfig
+    @Bean
+    public Queue orderKillQueue() {
+        return new Queue("order.seckill.order.queue", true, false, false);
+    }
+    // 参考 seckill服务 rabbitConfig
+    @Bean
+    public Binding orderKillBinding() {
+        return new Binding("order.seckill.order.queue",
+                Binding.DestinationType.QUEUE,
+                "order-event-exchange",
+                "order.seckill.order",
+                null);
+    }
 
 
 /*

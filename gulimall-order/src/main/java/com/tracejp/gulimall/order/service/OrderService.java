@@ -1,6 +1,7 @@
 package com.tracejp.gulimall.order.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.tracejp.common.to.mq.SeckillOrderTo;
 import com.tracejp.common.utils.PageUtils;
 import com.tracejp.gulimall.order.entity.OrderEntity;
 import com.tracejp.gulimall.order.vo.*;
@@ -32,6 +33,8 @@ public interface OrderService extends IService<OrderEntity> {
     PageUtils queryPageWithItem(Map<String, Object> params);
 
     String handlePayResult(PayAsyncVo payAsyncVo);
+
+    void createSeckillOrder(SeckillOrderTo seckillOrderTo);
 
 }
 

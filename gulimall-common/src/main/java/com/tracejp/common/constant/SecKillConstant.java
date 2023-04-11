@@ -16,4 +16,5 @@ public class SecKillConstant {
 
     public static final String UPLOAD_LOCK = "seckill:upload:lock";
 
+    public static final String SESSION_USER_PREFIX = "seckill:user:";
 }

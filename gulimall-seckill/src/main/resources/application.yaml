@@ -10,6 +10,10 @@ spring:
   redis:
     host: localhost
     port: 6379
+  session:
+    store-type: redis
+  thymeleaf:
+    cache: false
   # spring @Async 异步任务线程池配置
   # 用于解决 @Scheduled 定时任务阻塞问题，@Scheduled必须要等待当前任务执行完才会开始定时的下一个任务
   # 解决方案：加入 spring异步任务，方案二：使用 CompletableFuture 包装任务
@@ -18,3 +22,17 @@ spring:
       pool:
         core-size: 5
         max-size: 50
+  # rabbitmq配置
+  rabbitmq:
+    host: localhost
+    port: 5672
+    virtual-host: /
+    username: guest
+    password: guest
+#    publisher-confirms: true
+#    publisher-returns: true
+#    template:
+#      mandatory: true
+#    listener:
+#      simple:
+#        acknowledge-mode: manual
